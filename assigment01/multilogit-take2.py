@@ -71,7 +71,7 @@ def newmygrad(W,X,Y,b):
     #we can directly modify probMatrix, it's each time new generated when calling getProbabilityMat
 
   
-    P = calculate_probmatrix(Wr,X,b).transpose()
+    P = calculate_probmatrix(Wr,X,b).transpose()  - Y.transpose()
 
     #print "P = \n", P
     #print "Y.transpose \n", Y
@@ -80,8 +80,9 @@ def newmygrad(W,X,Y,b):
     for i in range(N):
         #print np.kron(P[:,i],X[:,i])
         grad += np.kron(P[:,i],X[:,i])
+        #print grad
         #suma += np.kron((scores[:,i] - Y.transpose()[:,i]),X[:,i])
-    
+   
     return grad
 
 
