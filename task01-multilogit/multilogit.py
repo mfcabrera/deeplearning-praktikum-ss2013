@@ -420,15 +420,17 @@ class MultiLogReg(object):
         beta_set = cPickle.load(open(self._weights_filename,"r"))
 
         beta_set = beta_set.reshape(self._D,self._no_classes).T
-       
+        print "Storing images of the receptive fields...."
  
         for i, beta in enumerate(beta_set):
-            print beta.shape
+            #print beta.shape
             d = beta.reshape(28, 28)
             gray_map = plt.get_cmap('gray')
             plt.imshow(d, gray_map)
             plt.savefig('receptive_field'+str(i)+'.png', dpi=150)
-                        
+            print ' Writing receptive_field'+str(i)+'.png'
+            
+        print "DONE. check your working directory"
         
                            
 
@@ -504,7 +506,7 @@ if __name__ == "__main__":
                    help='number of epochs for the training,  E = 25 by default')
 
     parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=10,
-                        help='number of batches, how many batches divide the training set. B = 5000 by default')
+                        help='number of batches, how many batches divide the training set. B = 10 by default')
 
     parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.1,
                         help='learning rate, default L = 0.1')
@@ -532,5 +534,5 @@ if __name__ == "__main__":
 
     c.plot_error()
     c.visualize_receptive_fields()
-    print "Training finished ... please check the png outputs for the graphsof the errors and receptive fields"
+    print "Training finished ... please check the png outputs for the graphs of the errors and receptive fields"
 
