@@ -41,6 +41,8 @@ trick to speedup the implmentation.)
 Early stopping is implemented but deactivated due the problem with the
 gradient. The "patience" is implemented is described as explained in the Deep
 learning turorial.
+
+
 It uses a full vector (un-rolled) implementation. This would allow to use
 anyother optimization method easily. However, only  mini-batch sgd with
 rmsprop is used. Momentum is not used, as Prof. Hinton hints (:P) that is not

@@ -39,3 +39,6 @@ nosetests.xml
 *.gz
 *.dump
 *.pickle
+*.png
+*.meta
+data_batch*
