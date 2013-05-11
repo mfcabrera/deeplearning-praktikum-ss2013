@@ -495,16 +495,16 @@ if __name__ == "__main__":
 
     
     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
-    parser.add_argument('-e','--epochs', metavar='E', type=int,default=1,
+    parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
                         help='number of epochs for the training,  E = 25 by default')
 
-    parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=10,
+    parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=200,
                         help='number of batches, how many batches divide the training set. B = 200 by default')
 
     parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.001,
-                        help='learning rate, default L = 0.1')
+                        help='learning rate, default L = 0.001')
 
-    parser.add_argument('-j','--hidden-layer-size', type=int,default=50,
+    parser.add_argument('-j','--hidden-layer-size', type=int,default=300,
                          help='numbers of neurons in the hidden layer, default = 300')
 
     parser.add_argument('-o','--optimization-method',default="msgd",
