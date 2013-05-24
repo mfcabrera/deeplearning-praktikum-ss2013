@@ -389,10 +389,10 @@ class NeuralNet(object):
         
         #return big_delta
 
-        return np.concatenate([big_delta_wl1.reshape(big_delta_wl1.size),
-                               big_delta_bl1.reshape(big_delta_bl1.size),
-                               big_delta_wl2.reshape(big_delta_wl2.size),
-                               big_delta_bl2.reshape(big_delta_bl2.size)])
+        return np.concatenate([big_delta_wl1.ravel(),
+                               big_delta_bl1,
+                               big_delta_wl2.ravel(),
+                               big_delta_bl2])
 
     
     
