@@ -353,6 +353,7 @@ class NeuralNet(object):
         for i,x in enumerate(X):
             #print layers_outputs[-1][i,:]
             #1xNclasses vector - each per class
+
             dE_dy =  -(y[i,:] - layers_outputs[-1][i,:])
             
             big_delta_bl2 +=   dE_dy
@@ -361,25 +362,17 @@ class NeuralNet(object):
             
 
             dE_dhl = dE_dy.dot(Wl2.T)
-            #small_delta_hl = dE_dy.dot(Wl2.T)
+  
 
             big_delta_bl1 += dE_dhl
             
             small_delta_hl = dE_dhl*fprime(layers_outputs[-2][i,:])
 
 
-            #np.outer(dE_dz_out,layers_outputs[-2][i,:].T).T  #nhl x output
-
-            #print  np.outer(layers_outputs[-2][i,:], dE_dz_out).shape
-            
-            #print np.outer(layers_outputs[-2][i,:], dE_dz_out).shape
+           
             
             big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dz_out)
-            #nhl x output
-            #np.outer(dE_dz_out,layers_outputs[-2][i,:].T).T  #nhl x output
-            #big_delta_wl1 +=   np.outer(x,small_delta_hl)
             big_delta_wl1 +=   np.outer(x,small_delta_hl)
-
            
             
 
