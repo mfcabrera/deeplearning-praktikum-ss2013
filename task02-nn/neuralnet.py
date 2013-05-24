@@ -50,7 +50,7 @@ class NeuralNet(object):
 
         weights_L2 = W[start_l2: start_l2  + wl2_size].reshape((self._hidden_layer_size,self._output_size))
         bias_L2  =  W[start_l2  + wl2_size : start_l2  + wl2_size + bl2_size]
-
+        
     
         
         return weights_L1,bias_L1,weights_L2,bias_L2
@@ -313,14 +313,6 @@ class NeuralNet(object):
         
         #error = e1.sum(axis=1)
         error = e1.sum()/sample_size + 0.5*reg*(np.square(W)).sum()
-
-        
-        # We have here training samples in the columns (outputs rows)
-        #error = ()*0.5).sum(axis=1)/sample_size
-        return error
-
-
-    def _back_prop(self,W,X,labels,f=sigmoid,fprime=sigmoid_prime,lam=0.001):
         """
         Calculate the partial derivates of the cost function using backpropagation.
         Using a closure,can be used with more advanced methods of optimization
@@ -355,27 +347,46 @@ class NeuralNet(object):
         
         for i,x in enumerate(X):
             #print layers_outputs[-1][i,:]
+            #1xNclasses vector - each per class
+            dE_dy =  -(y[i,:] - layers_outputs[-1][i,:])
             
-            small_delta_output =  -(y[i,:] - layers_outputs[-1][i,:])*fprime(layers_outputs[-1][i,:])
-            small_delta_hl = small_delta_output.dot(Wl2.T)*fprime(layers_outputs[-2][i,:])
-                                                                
-            big_delta_wl2 +=   np.outer(small_delta_output,layers_outputs[-2][i,:].T).T  #nhl x output
-            big_delta_bl2 +=   small_delta_output
-                                                                                           
+            big_delta_bl2 +=   dE_dy
+
+            dE_dz_out  = dE_dy * fprime(layers_outputs[-1][i,:])
+            
+
+            dE_dhl = dE_dy.dot(Wl2.T)
+            #small_delta_hl = dE_dy.dot(Wl2.T)
+
+            big_delta_bl1 += dE_dhl
+            
+            small_delta_hl = dE_dhl*fprime(layers_outputs[-2][i,:])
+
+
+            #np.outer(dE_dz_out,layers_outputs[-2][i,:].T).T  #nhl x output
+
+            #print  np.outer(layers_outputs[-2][i,:], dE_dz_out).shape
+            
+            #print np.outer(layers_outputs[-2][i,:], dE_dz_out).shape
+            
+            big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dz_out)
+            #nhl x output
+            #np.outer(dE_dz_out,layers_outputs[-2][i,:].T).T  #nhl x output
             #big_delta_wl1 +=   np.outer(x,small_delta_hl)
-            big_delta_wl1 +=   np.outer(small_delta_hl,x.T).T
-            big_delta_bl1 +=   small_delta_hl
-            
+            big_delta_wl1 +=   np.outer(x,small_delta_hl)
+
+           
             
 
             
             
         #TODO Regularization
         #print num_samples
+        #num_samples = 1
         
-        big_delta_wl2 = np.true_divide(big_delta_wl2,num_samples) + lam*Wl2
+        big_delta_wl2 = np.true_divide(big_delta_wl2,num_samples) + lam*Wl2*2
         big_delta_bl2 = np.true_divide(big_delta_bl2,num_samples)
-        big_delta_wl1 = np.true_divide(big_delta_wl1,num_samples) + lam*Wl1
+        big_delta_wl1 = np.true_divide(big_delta_wl1,num_samples) + lam*Wl1*2
         big_delta_bl1 = np.true_divide(big_delta_bl1,num_samples)
         
         #return big_delta
@@ -490,43 +501,46 @@ def load_data():
     return train_set,valid_set,test_set
 
 
-    
 if __name__ == "__main__":
 
+    train_set,test_set,valid_set = load_data()
+    nn = NeuralNet(train_set,test_set,valid_set,20)
+    nn.check_gradient()
+    #nn.train(0.001,epochs=50)
     
-    parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
-    parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
-                        help='number of epochs for the training,  E = 25 by default')
+#     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
+#     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
+#                         help='number of epochs for the training,  E = 25 by default')
 
-    parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=200,
-                        help='number of batches, how many batches divide the training set. B = 200 by default')
+#     parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=200,
+#                         help='number of batches, how many batches divide the training set. B = 200 by default')
 
-    parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.001,
-                        help='learning rate, default L = 0.001')
+#     parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.001,
+#                         help='learning rate, default L = 0.001')
 
-    parser.add_argument('-j','--hidden-layer-size', type=int,default=300,
-                         help='numbers of neurons in the hidden layer, default = 300')
+#     parser.add_argument('-j','--hidden-layer-size', type=int,default=300,
+#                          help='numbers of neurons in the hidden layer, default = 300')
 
-    parser.add_argument('-o','--optimization-method',default="msgd",
-                        help='Optimization technique,  on of  [msgd,gc,bfgs] - only implemented msgd - minibatch stochastic gradient descent')
+#     parser.add_argument('-o','--optimization-method',default="msgd",
+#                         help='Optimization technique,  on of  [msgd,gc,bfgs] - only implemented msgd - minibatch stochastic gradient descent')
     
-    parser.add_argument('-s','--early-stoping',action='store_true',
-                        help='Use early stopping - currently disabled by problems with the gradient, although implemented.')
+#     parser.add_argument('-s','--early-stoping',action='store_true',
+#                         help='Use early stopping - currently disabled by problems with the gradient, although implemented.')
         
     
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    train_set,test_set,valid_set = load_data()
+#     train_set,test_set,valid_set = load_data()
     
-    nn = NeuralNet(train_set,test_set,valid_set,no_neurons=args.hidden_layer_size)
-    print "Training the neural network...."
-    nn.train(learning_rate=args.learning_rate,
-             batch_number=args.number_of_batches,
-             epochs=args.epochs,
-             algorithm=args.optimization_method)
+#     nn = NeuralNet(train_set,test_set,valid_set,no_neurons=args.hidden_layer_size)
+#     print "Training the neural network...."
+#     nn.train(learning_rate=args.learning_rate,
+#              batch_number=args.number_of_batches,
+#              epochs=args.epochs,
+#              algorithm=args.optimization_method)
 
     
-    #nn.dump_weights()
-    nn.visualize_receptive_fields()
-    nn.plot_error()
+#     #nn.dump_weights()
+#     nn.visualize_receptive_fields()
+#     nn.plot_error()
 
