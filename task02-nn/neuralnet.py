@@ -309,7 +309,7 @@ class NeuralNet(object):
 
         y = self.make_1_of_c_encoding(labels)
       
-        e1 = (np.sqrt(np.sum((outputs - y)**2, axis=1)))*0.5
+        e1 = (np.sum((outputs - y)**2, axis=1))
         
         #error = e1.sum(axis=1)
         error = e1.sum()/sample_size + 0.5*reg*(np.square(W)).sum()
