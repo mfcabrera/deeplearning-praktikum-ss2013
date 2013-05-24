@@ -313,6 +313,11 @@ class NeuralNet(object):
         
         #error = e1.sum(axis=1)
         error = e1.sum()/sample_size + 0.5*reg*(np.square(W)).sum()
+
+        return error
+        
+    def _back_prop(self,W,X,labels,f=sigmoid,fprime=sigmoid_prime,lam=0.001):
+    
         """
         Calculate the partial derivates of the cost function using backpropagation.
         Using a closure,can be used with more advanced methods of optimization
