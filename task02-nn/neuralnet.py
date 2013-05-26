@@ -502,9 +502,9 @@ def load_data():
 if __name__ == "__main__":
 
     train_set,test_set,valid_set = load_data()
-    nn = NeuralNet(train_set,test_set,valid_set,20)
-    nn.check_gradient()
-    #nn.train(0.001,epochs=50)
+    nn = NeuralNet(train_set,test_set,valid_set,300)
+    #nn.check_gradient()
+    nn.train(0.001,epochs=30,batch_number=100)
     
 #     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
 #     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
