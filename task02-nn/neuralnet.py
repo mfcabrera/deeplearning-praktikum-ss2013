@@ -309,7 +309,7 @@ class NeuralNet(object):
 
         y = self.make_1_of_c_encoding(labels)
       
-        e1 = (np.sum((outputs - y)**2, axis=1))
+        e1 = (np.sum((outputs - y), axis=1))
         
         #error = e1.sum(axis=1)
         error = e1.sum()/sample_size + 0.5*reg*(np.square(W)).sum()
@@ -354,7 +354,7 @@ class NeuralNet(object):
             #print layers_outputs[-1][i,:]
             #1xNclasses vector - each per class
 
-            dE_dy =  -(y[i,:] - layers_outputs[-1][i,:])
+            dE_dy = layers_outputs[-1][i,:] -  y[i,:] 
             
             big_delta_bl2 +=   dE_dy
 
@@ -424,7 +424,7 @@ class NeuralNet(object):
         
         predicted_labels = np.argmax(prob_mat, axis=1) 
         
-       
+        
         testing_no = predicted_labels.size 
 
         error =  np.nonzero(predicted_labels - labels)[0].size
@@ -501,7 +501,7 @@ def load_data():
 
 if __name__ == "__main__":
 
-    train_set,test_set,valid_set = load_data()
+    #train_set,test_set,valid_set = load_data()
     nn = NeuralNet(train_set,test_set,valid_set,300)
     #nn.check_gradient()
     nn.train(0.001,epochs=30,batch_number=100)
