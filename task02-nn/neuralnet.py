@@ -31,6 +31,35 @@ class NeuralNet(object):
     """implementation of a neural net
     """
 
+    def softmax(self,Weights,X,b):
+        """
+        D = number of variables (including the bias)
+        N = number of training samples
+        C = number of classes
+        
+        Calculate probabily matrix using the definition in Sec. 8.3.7
+        param: Weights - A Weight matrix shape =  DxC
+        param: X: Training sample matrix with NXD
+        param: b: Bias weight of 1xC vector
+        param: Y: 1-of-C coding scheme  NxC matrix input
+        returns: A matrix P NxC   have probability for each sample (=row) and for each class (=column) 
+        as a result we have probaility for each sample (row) for each class (column)
+        """
+        N = X.shape[0]
+        D =  X.shape[1]
+        C = Weights.shape[1]
+        
+        #P = np.zeros((N,C))
+        #print P.shape
+        P1 = np.dot(X,Weights) + b
+        P1  = np.exp(P1)
+        
+        for i in range(N):
+            P1[i,:] = P1[i,:]/P1[i,:].sum()
+            # print P1
+        return P1
+    
+    
     def _extract_weights(self,W):
         """
         This will extract the weights from we big W array. in a 1-hidden layer network.
@@ -358,18 +387,15 @@ class NeuralNet(object):
             
             big_delta_bl2 +=   dE_dy
 
-            dE_dz_out  = dE_dy * fprime(layers_outputs[-1][i,:])
+            dE_dz_out  = dE_dy #* fprime(layers_outputs[-1][i,:])
             
 
             dE_dhl = dE_dy.dot(Wl2.T)
   
 
-            big_delta_bl1 += dE_dhl
-            
             small_delta_hl = dE_dhl*fprime(layers_outputs[-2][i,:])
-
-
-           
+            big_delta_bl1 += small_delta_nl
+            
             
             big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dz_out)
             big_delta_wl1 +=   np.outer(x,small_delta_hl)
@@ -504,7 +530,7 @@ if __name__ == "__main__":
     #train_set,test_set,valid_set = load_data()
     nn = NeuralNet(train_set,test_set,valid_set,300)
     #nn.check_gradient()
-    nn.train(0.001,epochs=30,batch_number=100)
+    nn.train(0.001,epochs=30,batch_number=300)
     
 #     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
 #     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
