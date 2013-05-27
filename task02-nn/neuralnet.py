@@ -51,6 +51,7 @@ class NeuralNet(object):
         
         #P = np.zeros((N,C))
         #print P.shape
+
         P1 = np.dot(X,Weights) + b
         P1  = np.exp(P1)
         
@@ -99,8 +100,8 @@ class NeuralNet(object):
         # A_2 = N x HLS
         A_2 = transfer_func(np.dot(X,weights_L1) + bias_L1 )
         
-        # A_3 = N x  Outputs
-        A_3 = transfer_func(np.dot(A_2,weights_L2) + bias_L2)
+        # A_3 = N x  Outputs - softmax
+        A_3 = self.softmax(weights_L2,A_2,bias_L2)
         
         # output layer
         return [A_2,A_3]
@@ -394,10 +395,10 @@ class NeuralNet(object):
   
 
             small_delta_hl = dE_dhl*fprime(layers_outputs[-2][i,:])
-            big_delta_bl1 += small_delta_nl
+            big_delta_bl1 += small_delta_hl
             
             
-            big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dz_out)
+            big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dy)
             big_delta_wl1 +=   np.outer(x,small_delta_hl)
            
             
@@ -530,7 +531,7 @@ if __name__ == "__main__":
     #train_set,test_set,valid_set = load_data()
     nn = NeuralNet(train_set,test_set,valid_set,300)
     #nn.check_gradient()
-    nn.train(0.001,epochs=30,batch_number=300)
+    nn.train(0.001,epochs=30,batch_number=100)
     
 #     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
 #     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
