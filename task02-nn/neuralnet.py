@@ -157,7 +157,7 @@ class NeuralNet(object):
 
       
     
-    def _traing_mini_sgd(self,learning_rate=0.2,batch_number=10,epochs=1):
+    def _traing_mini_sgd(self,learning_rate=0.2,batch_number=10,epochs=1,rms_incr=0.9,rms_dcr=0.1):
         """
         Training miniSGD
         """
@@ -215,7 +215,7 @@ class NeuralNet(object):
                 
                 
                 delta_ws = self._back_prop(self._betas,Xs,Ls)
-                means_sqrt_w = 0.9*means_sqrt_w + 0.1*(delta_ws**2)
+                means_sqrt_w = rms_incr*means_sqrt_w + rms_dcr*(delta_ws**2)
                             
               
                 rmsdelta = np.divide(delta_ws,np.sqrt(means_sqrt_w))
@@ -328,7 +328,7 @@ class NeuralNet(object):
         return Y
 
 
-    def cost_function(self,W,X,labels,reg=0.001):
+    def cost_function(self,W,X,labels,reg=0.00001):
         """
         reg: regularization term
         No weight decay term - lets leave it for later
@@ -339,14 +339,14 @@ class NeuralNet(object):
 
         y = self.make_1_of_c_encoding(labels)
       
-        e1 = (np.sum((outputs - y), axis=1))
+        e1 = -np.sum(np.log(outputs)*y, axis=1)
         
         #error = e1.sum(axis=1)
         error = e1.sum()/sample_size + 0.5*reg*(np.square(W)).sum()
 
         return error
         
-    def _back_prop(self,W,X,labels,f=sigmoid,fprime=sigmoid_prime,lam=0.001):
+    def _back_prop(self,W,X,labels,f=sigmoid,fprime=sigmoid_prime,lam=0.000001):
     
         """
         Calculate the partial derivates of the cost function using backpropagation.
@@ -415,7 +415,7 @@ class NeuralNet(object):
         big_delta_bl1 = np.true_divide(big_delta_bl1,num_samples)
         
         #return big_delta
-
+        
         return np.concatenate([big_delta_wl1.ravel(),
                                big_delta_bl1,
                                big_delta_wl2.ravel(),
@@ -433,7 +433,7 @@ class NeuralNet(object):
         
         # A matrix P NxC   have probability for each sample (=row) and for each class (=column) 
         # as a result we have probaility for each sample (row) for each class (column)
-    
+        
         if(dataset=="testing"):
             data = self._testing_data
             labels = self._testing_labels
@@ -486,9 +486,6 @@ class NeuralNet(object):
         plt.close()
 
 
-        
-      
-
         plt.figure(2)
         p4, = plt.plot(x,self.cost_output)
         plt.legend([p4], ["negloglikelihood"])
@@ -531,7 +528,7 @@ if __name__ == "__main__":
     #train_set,test_set,valid_set = load_data()
     nn = NeuralNet(train_set,test_set,valid_set,300)
     #nn.check_gradient()
-    nn.train(0.001,epochs=30,batch_number=100)
+    nn.train(0.001,epochs=30,batch_number=200,rms_incr=0.8,rms_dcr=0.2)
     
 #     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
 #     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
