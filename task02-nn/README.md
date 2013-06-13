@@ -36,10 +36,15 @@ working directory. This is implemented in Numpy/SciPy  purely. The Math is
 taken mainly from UFDL Tutorial and Andrw NG Ml course. It uses rmsprop as
 explained by Prof. Hinton in the Neural Network course on Coursera. 
 For now only normal sigmoid is used (with the grad being calculated with a
-trick to speedup the implmentation.)
-9-10% of error is reached due to a problem with the gradient that *I am still trying to solve*
-Early stopping is implemented but deactivated due the problem with the
-gradient. The "patience" is implemented is described as explained in the Deep
+trick to speedup the implmentation.) 
+<del>9-10% of error is reached due to a problem with the gradient that *I am still trying to solve*</del>
+<del>Early stopping is implemented but deactivated due the problem with the
+gradient. </del>
+I have two main erros - One using logistics output while calculating the
+gradient for square error (duh!). The regularization factor was also pretty,
+when decreased left the local minima. Christian helped a lot with this.
+
+The "patience" is implemented is described as explained in the Deep
 learning turorial.
 
 
