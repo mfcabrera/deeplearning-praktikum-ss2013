@@ -2,7 +2,7 @@
 
 Author: Miguel Cabrera <miguel.cabrera@tum.de>
 
- python multilogit.py -h
+ python neuralnet.py -h
 
      usage: neuralnet.py [-h] [-e E] [-b B] [-l L] [-j HIDDEN_LAYER_SIZE]
                          [-o OPTIMIZATION_METHOD] [-s]
