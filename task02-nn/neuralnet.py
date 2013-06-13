@@ -167,10 +167,10 @@ class NeuralNet(object):
         
         self._epochs = epochs
         self._learning_rate = learning_rate
-        
-        print "Training with learning_rate = {0} :: #Batches = {1} :: #Epochs = {2}".format(learning_rate,
-                                                                                            batch_number,
-                                                                                             epochs)
+       
+        print "Training using MiniBatch SGD  with Hidden layer size = {3} ::  learning_rate = {0} :: Batches = {1} :: Epochs = {2}".format(learning_rate,batch_number,
+                                                                                                                      epochs,self._hidden_layer_size)
+                                                                                                                      
         # Erro reporting: 
         self.error_testing = np.zeros(self._epochs*self._batch_number)
         self.error_validation = np.zeros(self._epochs*self._batch_number)
@@ -205,7 +205,7 @@ class NeuralNet(object):
                 
        
             for  batch in range(self._batch_number):
-                print "Trainining: Epoch {0}/{1} - Batch {2}".format(epoch+1,self._epochs,batch+1)
+                print "Trainining: Epoch {0}/{1} - Batch {2}/{3}".format(epoch+1,self._epochs,batch+1,self._batch_number)
                 
                 start = self._batch_size*batch
                 end =   self._batch_size*batch + self._batch_size
@@ -373,42 +373,22 @@ class NeuralNet(object):
         big_delta = np.zeros(Wl2.size + bl2.size + Wl1.size + bl1.size)
         big_delta_wl1, big_delta_bl1, big_delta_wl2, big_delta_bl2 = self._extract_weights(big_delta)
                                                                     
-        # print big_delta_wl1.shape
-        # print big_delta_wl2.shape
-        # print big_delta_bl1.shape
-        # print big_delta_bl2.shape  
+                
+        dE_dy = layers_outputs[-1] -  y 
         
-        #  print big_delta_wl2.shape
-        
-        for i,x in enumerate(X):
-            #print layers_outputs[-1][i,:]
-            #1xNclasses vector - each per class
+        big_delta_bl2 =   dE_dy.sum(axis=0)
 
-            dE_dy = layers_outputs[-1][i,:] -  y[i,:] 
-            
-            big_delta_bl2 +=   dE_dy
-
-            dE_dz_out  = dE_dy #* fprime(layers_outputs[-1][i,:])
+                
+        dE_dhl = dE_dy.dot(Wl2.T)
             
 
-            dE_dhl = dE_dy.dot(Wl2.T)
-  
-
-            small_delta_hl = dE_dhl*fprime(layers_outputs[-2][i,:])
-            big_delta_bl1 += small_delta_hl
+        small_delta_hl = dE_dhl*fprime(layers_outputs[-2])
+        big_delta_bl1 = small_delta_hl.sum(axis=0)
+            
+        big_delta_wl2 = np.dot(layers_outputs[-2].T,dE_dy)
+        big_delta_wl1 =  np.dot(X.T,small_delta_hl)
             
             
-            big_delta_wl2 += np.outer(layers_outputs[-2][i,:],dE_dy)
-            big_delta_wl1 +=   np.outer(x,small_delta_hl)
-           
-            
-
-            
-            
-        #TODO Regularization
-        #print num_samples
-        #num_samples = 1
-        
         big_delta_wl2 = np.true_divide(big_delta_wl2,num_samples) + lam*Wl2*2
         big_delta_bl2 = np.true_divide(big_delta_bl2,num_samples)
         big_delta_wl1 = np.true_divide(big_delta_wl1,num_samples) + lam*Wl1*2
@@ -516,53 +496,54 @@ class NeuralNet(object):
 
 
 def load_data():
-    import cPickle,gzip
+    
     f = gzip.open('mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = cPickle.load(f)
     f.close()
     return train_set,valid_set,test_set
 
 
-if __name__ == "__main__":
 
-    #train_set,test_set,valid_set = load_data()
-    nn = NeuralNet(train_set,test_set,valid_set,300)
-    #nn.check_gradient()
-    nn.train(0.001,epochs=30,batch_number=200,rms_incr=0.8,rms_dcr=0.2)
+
+#train_set,test_set,valid_set = load_data()
+#nn = NeuralNet(train_set,test_set,valid_set,300)
+#nn.check_gradient()
+#nn.train(0.001,epochs=30,batch_number=200,rms_incr=0.9,rms_dcr=0.1)
+
+if __name__ == "__main__":    
+    parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
+    parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
+                        help='number of epochs for the training,  E = 25 by default')
     
-#     parser = argparse.ArgumentParser(description='Classify handwritten digits from the MNIST dataset using a neural network with a hidden layer with rmsprop and mini-batch stochastic gradient descent.')
-#     parser.add_argument('-e','--epochs', metavar='E', type=int,default=25,
-#                         help='number of epochs for the training,  E = 25 by default')
-
-#     parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=200,
-#                         help='number of batches, how many batches divide the training set. B = 200 by default')
-
-#     parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.001,
-#                         help='learning rate, default L = 0.001')
-
-#     parser.add_argument('-j','--hidden-layer-size', type=int,default=300,
-#                          help='numbers of neurons in the hidden layer, default = 300')
-
-#     parser.add_argument('-o','--optimization-method',default="msgd",
-#                         help='Optimization technique,  on of  [msgd,gc,bfgs] - only implemented msgd - minibatch stochastic gradient descent')
+    parser.add_argument('-b','--number-of-batches', metavar='B', type=int,default=200,
+                        help='number of batches, how many batches divide the training set. B = 200 by default')
     
-#     parser.add_argument('-s','--early-stoping',action='store_true',
-#                         help='Use early stopping - currently disabled by problems with the gradient, although implemented.')
-        
+    parser.add_argument('-l','--learning-rate', metavar='L', type=float,default=0.001,
+                        help='learning rate, default L = 0.001')
     
-#     args = parser.parse_args()
+    parser.add_argument('-j','--hidden-layer-size', type=int,default=300,
+                        help='numbers of neurons in the hidden layer, default = 300')
 
-#     train_set,test_set,valid_set = load_data()
+    parser.add_argument('-o','--optimization-method',default="msgd",
+                        help='Optimization technique,  on of  [msgd,gc,bfgs] - only implemented msgd - minibatch stochastic gradient descent')
     
-#     nn = NeuralNet(train_set,test_set,valid_set,no_neurons=args.hidden_layer_size)
-#     print "Training the neural network...."
-#     nn.train(learning_rate=args.learning_rate,
-#              batch_number=args.number_of_batches,
-#              epochs=args.epochs,
-#              algorithm=args.optimization_method)
+    parser.add_argument('-s','--early-stoping',action='store_true',
+                        help='Use early stopping - currently disabled by problems with the gradient, although implemented.')
+    
+    
+    args = parser.parse_args()
+
+    train_set,test_set,valid_set = load_data()
+    
+    nn = NeuralNet(train_set,test_set,valid_set,no_neurons=args.hidden_layer_size)
+    print "Training the neural network...."
+    nn.train(learning_rate=args.learning_rate,
+             batch_number=args.number_of_batches,
+             epochs=args.epochs,
+             algorithm=args.optimization_method)
 
     
-#     #nn.dump_weights()
-#     nn.visualize_receptive_fields()
-#     nn.plot_error()
+    nn.dump_weights()
+    nn.visualize_receptive_fields()
+    nn.plot_error()
 
