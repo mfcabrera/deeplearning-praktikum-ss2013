@@ -1,4 +1,4 @@
-## Neural Network with one Hidden Layer for Classifying the MNIST dataset
+## PCA  / Autoencoder Implementation
 
 Author: Miguel Cabrera <miguel.cabrera@tum.de>
 
