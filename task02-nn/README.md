@@ -43,7 +43,7 @@ gradient. </del>
 I had two main errors (now solved) -
 1. One using logistics output while calculating the
 gradient for square error (duh!). The other one I don't remeber but
-Christian (@osdf) helped a lot with this.
+Christian ( @osdf ) helped a lot with this.
 
 The "patience" is implemented is described as explained in the Deep
 learning turorial.
