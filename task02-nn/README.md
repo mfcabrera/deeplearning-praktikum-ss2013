@@ -40,13 +40,13 @@ trick to speedup the implmentation.)
 <del>9-10% of error is reached due to a problem with the gradient that *I am still trying to solve*</del>
 <del>Early stopping is implemented but deactivated due the problem with the
 gradient. </del>
-I have two main erros - One using logistics output while calculating the
-gradient for square error (duh!). The regularization factor was also pretty,
-when decreased left the local minima. Christian helped a lot with this.
+I had two main errors (now solved) -
+1. One using logistics output while calculating the
+gradient for square error (duh!). The other one I don't remeber but
+Christian (@osdf) helped a lot with this.
 
 The "patience" is implemented is described as explained in the Deep
 learning turorial.
-
 
 It uses a full vector (un-rolled) implementation. This would allow to use
 anyother optimization method easily. However, only  mini-batch sgd with
